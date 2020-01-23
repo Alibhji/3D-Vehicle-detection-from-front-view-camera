@@ -1,0 +1,25 @@
+DATASET:
+  ROOT: '/home/ali/Alibhji/Kaggle/data'
+  ANNOTATION_JSON    : 'person_keypoints' # + "there are two files : [ANNOTATION_JSON]_train.json , [ANNOTATION_JSON]_val.json "
+  ANNOTATION_PANDAS  : 'coco_pd'     # + "there are two files : [ANNOTATION_PANDAS]_train.pandas , [ANNOTATION_PANDAS]_val.pandas "
+  CREATE_NEW_DATASET : False
+  FEED_DATA_PER_OBJECT : True  # you can feed multiple objects per image for training [FALSE] or just one object per image at the training time [TRUE]
+
+PREPROCESS:
+  NUM_JOINTS : 9
+  ORGINAL_IMAGE_SIZE :
+    YS : 2710
+    XS : 3384
+  CROP:
+    TOP   : 1366
+    DOWN: 0
+    LEFT  : 0
+    RIGHT : 56
+  SCALE:
+    YS: 7
+    XS: 13
+
+
+
+
+
