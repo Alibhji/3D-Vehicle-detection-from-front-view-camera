@@ -164,8 +164,8 @@ class general_dataset(Dataset):
         np.random.seed(int(time.time() * 1000) % 1000)
         # print(center)
 
-        min_s = 0
-        max_s = 0 # + degrees
+        min_s = 1
+        max_s = 1 # + degrees
         scale = min_s + np.random.rand(1) * (max_s - min_s)
 
         np.random.seed(int(time.time() * 1000) % 1000)
