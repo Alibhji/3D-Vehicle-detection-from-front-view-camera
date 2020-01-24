@@ -46,10 +46,12 @@ class general_dataset(Dataset):
 
         # prepross
 
+        self.cfg= cfg
+
         self.cut_top = cfg['PREPROCESS']['CROP']['TOP']
-        self.cut_down = cfg['PREPROCESS']['CROP']['DOWN']+1
+        self.cut_down = cfg['PREPROCESS']['CROP']['DOWN']
         self.cut_left = cfg['PREPROCESS']['CROP']['LEFT']
-        self.cut_right =  cfg['PREPROCESS']['CROP']['RIGHT']+1
+        self.cut_right =  cfg['PREPROCESS']['CROP']['RIGHT']
 
         self.scale_ys = cfg['PREPROCESS']['SCALE']['YS']
         self.scale_xs = cfg['PREPROCESS']['SCALE']['XS']
@@ -106,7 +108,10 @@ class general_dataset(Dataset):
 
     def pre_processing(self, image, anns, meta_data):
 
-        image = image[self.cut_top: -self.cut_down, self.cut_left: -self.cut_right, :]
+        image = image[self.cut_top: [None , -self.cut_down] [self.cut_down > 0], self.cut_left: [None , -self.cut_left] [self.cut_left > 0], :]
+
+        if (cfg['PREPROCESS']['NORMALIZE_MINMAX']):
+            image = cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
         height_ys = int(image.shape[0] / self.scale_ys)
         width_xs = int(image.shape[1] / self.scale_xs)
@@ -128,9 +133,9 @@ class general_dataset(Dataset):
             m_data['Orginal_key_points'] = copy.deepcopy(key_points)
 
             key_points[:, 0] = key_points[:, 0] - self.cut_top
-            key_points[:, 1] = key_points[:, 1] - self.cut_right
+            key_points[:, 1] = key_points[:, 1] - self.cut_left
             key_points[:, 0] = (key_points[:, 0] / self.scale_ys).astype(int) # + int(self.scale_ys/2)
-            key_points[:, 1] = (key_points[:, 1] / self.scale_xs).astype(int) + int(self.scale_xs/2)
+            key_points[:, 1] = (key_points[:, 1] / self.scale_xs).astype(int) #+ int(self.scale_xs/2)
 
 
             m_data['key_points'] = key_points
@@ -156,7 +161,30 @@ class general_dataset(Dataset):
 
         return image, anns, meta_data
 
+
+    # def Topological_Skeleton(self ,img):
+    #     size = np.size(img)
+    #     skel = np.zeros(img.shape, np.uint8)
+    #     ret, img = cv2.threshold(img, 127, 255, 0)
+    #     element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    #     done = False
+    #     while (not done):
+    #         eroded = cv2.erode(img, element)
+    #         temp = cv2.dilate(eroded, element)
+    #         temp = cv2.subtract(img, temp)
+    #         skel = cv2.bitwise_or(skel, temp)
+    #         img = eroded.copy()
+    #
+    #         zeros = size - cv2.countNonZero(img)
+    #         if zeros == size:
+    #             done = True
+    #     return skel
+
     def Augmentation(self, image, anns, meta_data):
+        ''' For data augmentation :
+        - H-flip, 3 axis rotate, color, noise, blur.
+        - pixel level augmentation : https://github.com/albumentations-team/albumentations
+        '''
 
         image_size = np.array([image.shape[0], image.shape[1]])
         center = image_size / 2
@@ -164,21 +192,25 @@ class general_dataset(Dataset):
         np.random.seed(int(time.time() * 1000) % 1000)
         # print(center)
 
-        min_s = 1
-        max_s = 1 # + degrees
+        min_s = cfg['AUGMENTATION']['SCALE']['MIN']
+        max_s = cfg['AUGMENTATION']['SCALE']['MAX']
         scale = min_s + np.random.rand(1) * (max_s - min_s)
 
         np.random.seed(int(time.time() * 1000) % 1000)
-        min_a = 0
-        max_a = 0  # +/- degrees
-        angle = min_a + np.random.rand(1) * (max_a - min_a)
+        min_a = cfg['AUGMENTATION']['ROTATION']['MIN']
+        max_a = cfg['AUGMENTATION']['ROTATION']['MAX']
+        angle = min_a + np.random.randn(1) * (max_a - min_a)
         #         print('angle         ',    angle)
 
         np.random.seed(int(time.time() * 1000) % 1000)
-        min_shift = 0
-        max_shift = 0  # +/-pixels
+        min_shift = cfg['AUGMENTATION']['SHIFT']['MIN']
+        max_shift = cfg['AUGMENTATION']['SHIFT']['MAX']
+
         shift = min_shift + np.random.randn(1) * (max_shift - min_shift)
         shift2 = min_shift + np.random.randn(1) * (max_shift - min_shift)
+        shift_M = np.float32([[1, 0, shift], [0, 1, shift2]])
+
+
 
         if self.dataset_type == 'train':
             angle = angle
@@ -193,22 +225,39 @@ class general_dataset(Dataset):
 
         trans = cv2.getRotationMatrix2D((center[1], center[0]), angle, scale)
 
+        # apply rotation and scale on the image
+        image = cv2.warpAffine(
+            image,
+            trans,
+            (int(image_size[1]), int(image_size[0])),
+            flags=cv2.INTER_LINEAR)
+        # apply shifting
+        image = cv2.warpAffine(image, shift_M,  (int(image_size[1]), int(image_size[0])))
+
+        print(trans)
+
+
         for ii in range(len(meta_data['info'])):
             key_points = copy.deepcopy(meta_data['info'][ii]['key_points'])
             # print(key_points)
-            image = cv2.warpAffine(
-                image,
-                trans,
-                (int(image_size[1]), int(image_size[0])),
-                flags=cv2.INTER_LINEAR)
+
 
             for i in range(self.num_joints):
-                key_points[i, [1,0]] = self.affine_transform(key_points[i, [1,0]], trans)
-                print(trans)
+                key_points[i, [1, 0]] = self.affine_transform(key_points[i, [1, 0]], trans)
+                key_points[i, [1, 0]] = self.affine_transform(key_points[i, [1, 0]], shift_M)
 
-            key_points = self.remove_illigal_keypoints(key_points)
+
+            # key_points = self.remove_illigal_keypoints(key_points)
 
             meta_data['info'][ii]['key_points'] = key_points
+
+
+
+        if(cfg['AUGMENTATION']['HSV_FORMAT']):
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+
+
 
         return image, anns, meta_data
 
@@ -286,13 +335,13 @@ if __name__ == '__main__':
 
 
         for ii in range (len(meta_data['info'])):
-            print(meta_data['info'][ii]['key_points'])
+            # print(meta_data['info'][ii]['key_points'])
             key_points = meta_data['info'][ii]['key_points']
             bbox = meta_data['info'][ii]['Orginal_bbox']
 
             for point in key_points:
-                # img [100:120,900:1500,:] =255
                 img = cv2.circle(img , (point[1],point[0]) , 1 ,(0,0,255),1)
+        print(img.shape)
 
 
 

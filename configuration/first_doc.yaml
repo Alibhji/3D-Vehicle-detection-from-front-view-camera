@@ -6,6 +6,7 @@ DATASET:
   FEED_DATA_PER_OBJECT : False  # you can feed multiple objects per image for training [FALSE] or just one object per image at the training time [TRUE]
 
 PREPROCESS:
+  NORMALIZE_MINMAX : True # from [0-255] t0 [0-1]
   NUM_JOINTS : 9
   ORGINAL_IMAGE_SIZE :
     YS : 2710
@@ -21,6 +22,19 @@ PREPROCESS:
   SCALE:
     YS: 7
     XS: 13
+AUGMENTATION:
+  # you need add probability to this function, it is not good to whole dataset!
+  ROTATION:
+    MIN: 0
+    MAX: 0  # +/- Degrees
+  SCALE:
+    MIN: 1
+    MAX: 1
+  SHIFT:
+    MIN: 0
+    MAX: 0   # +/-Pixels
+  HSV_FORMAT: False
+
 
 
 
