@@ -3,13 +3,16 @@ DATASET:
   ANNOTATION_JSON    : 'person_keypoints' # + "there are two files : [ANNOTATION_JSON]_train.json , [ANNOTATION_JSON]_val.json "
   ANNOTATION_PANDAS  : 'coco_pd'     # + "there are two files : [ANNOTATION_PANDAS]_train.pandas , [ANNOTATION_PANDAS]_val.pandas "
   CREATE_NEW_DATASET : False
-  FEED_DATA_PER_OBJECT : True  # you can feed multiple objects per image for training [FALSE] or just one object per image at the training time [TRUE]
+  FEED_DATA_PER_OBJECT : False  # you can feed multiple objects per image for training [FALSE] or just one object per image at the training time [TRUE]
 
 PREPROCESS:
   NUM_JOINTS : 9
   ORGINAL_IMAGE_SIZE :
     YS : 2710
     XS : 3384
+  DATASET_IMAGE_SIZE:
+    YS: 192
+    XS: 256
   CROP:
     TOP   : 1366
     DOWN: 0
