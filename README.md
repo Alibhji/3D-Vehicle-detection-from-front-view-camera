@@ -10,3 +10,5 @@ There are two general ideas:
 ![enter image description here](./doc/images/center_of_objects_2.png)
 ![enter image description here](./doc/images/center_of_objects_3.png)
 ![enter image description here](./doc/images/center_of_objects_4.png)
+- The following Struture is used to train the network:\
+![enter image description here](./doc/images/model_center_2.png)
