@@ -1,2 +1,2 @@
-# 6DOF_car_localization_network
- This is a network for car 6 DOF orientaion detection in the image
+# Deep Learning -Peking University/Baidu - Autonomous Driving (Kaggle Competition-3D object detection):
+Competition link : [click](https://www.kaggle.com/c/pku-autonomous-driving)
