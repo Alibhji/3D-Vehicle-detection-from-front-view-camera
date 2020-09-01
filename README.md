@@ -29,6 +29,8 @@ There are two general ideas:
 ![enter image description here](./doc/images/key_point1..png)
 - In this method ve train the network to directly find 9 points for each object and then by using a post-processing method extract the object properties. 
 
+## **Network output for keypoint estimation:**
+![enter image description here](./doc/images/ex_keypoint_.png)
 
 
 Network is trained for 20 epochs:
