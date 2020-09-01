@@ -20,6 +20,10 @@ There are two general ideas: \
 ![enter image description here](./doc/images/key_point1..png)
 - In this method ve train the network to directly find 9 points for each object and then by using a post-processing method extract the object properties.
 
+**Exmaple of center point detection from Evaluation set:**
+![enter image description here](./doc/images/ex_center_mask_.png)
+
+
 Network is trained for 20 epochs:
 In the following image you can see loss evaluation based on each iterations:
 ![enter image description here](./doc/images/center_of_objects_Train.png)
