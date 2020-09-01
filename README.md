@@ -1,5 +1,6 @@
-# Deep Learning -Peking University/Baidu - Autonomous Driving (Kaggle Competition-3D object detection):
-Competition link : [click](https://www.kaggle.com/c/pku-autonomous-driving)
+# Deep Learning -Peking University/Baidu - Autonomous Driving 
+# (Kaggle Competition-3D object detection):
+Competition link : [click here!](https://www.kaggle.com/c/pku-autonomous-driving)
 
 There are two general ideas: \
 [**First is Center-point detections**]
