@@ -17,6 +17,10 @@ There are two general ideas:
 ![enter image description here](./doc/images/model_center_2.png)
 
 ## **Exmaple of center point detection from Evaluation set:**
+[top] --> input
+[Middel] --> Ground Truth 
+[Bottom] --> Mask Estimation (network output)
+
 ![enter image description here](./doc/images/ex_center_mask_.png) 
 
 
